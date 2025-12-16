@@ -6,6 +6,6 @@
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 132-491-319
-127.0.0.1 - - [15/Dec/2025 22:32:59] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [15/Dec/2025 22:32:59] "POST /api/reading HTTP/1.1" 200 -
-127.0.0.1 - - [15/Dec/2025 22:32:59] "[35m[1mPOST /api/register HTTP/1.1[0m" 201 -
+127.0.0.1 - - [15/Dec/2025 22:28:22] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Dec/2025 22:28:22] "POST /api/reading HTTP/1.1" 200 -
+127.0.0.1 - - [15/Dec/2025 22:28:23] "[35m[1mPOST /api/register HTTP/1.1[0m" 201 -
