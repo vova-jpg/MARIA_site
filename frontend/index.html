@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarot Reading</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+        }
+        #reading-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        #card-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .card {
+            width: 150px;
+            height: 250px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card.hidden {
+            filter: blur(5px);
+        }
+        #reveal-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Tarot Reading</h1>
+        <button id="reading-button">Get a Reading</button>
+        <div id="card-container"></div>
+        <button id="reveal-button" style="display: none;">Reveal Other Cards</button>
+    </div>
+
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Register to Reveal</h2>
+            <form id="register-form">
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const readingButton = document.getElementById('reading-button');
+        const cardContainer = document.getElementById('card-container');
+        const revealButton = document.getElementById('reveal-button');
+        const registerModal = document.getElementById('register-modal');
+        const closeButton = document.querySelector('.close-button');
+        const registerForm = document.getElementById('register-form');
+
+        let currentReading = null;
+
+        readingButton.addEventListener('click', async () => {
+            const response = await fetch('/api/reading', { method: 'POST' });
+            const data = await response.json();
+            currentReading = data.cards;
+
+            cardContainer.innerHTML = '';
+            data.cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                if (index > 0) {
+                    cardElement.classList.add('hidden');
+                }
+                cardElement.innerHTML = `
+                    <h3>${card.name}</h3>
+                    <p>${card.meaning}</p>
+                `;
+                cardContainer.appendChild(cardElement);
+            });
+
+            revealButton.style.display = 'block';
+        });
+
+        revealButton.addEventListener('click', () => {
+            registerModal.style.display = 'block';
+        });
+
+        closeButton.addEventListener('click', () => {
+            registerModal.style.display = 'none';
+        });
+
+        registerForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, reading: currentReading })
+            });
+
+            if (response.ok) {
+                registerModal.style.display = 'none';
+                const hiddenCards = document.querySelectorAll('.card.hidden');
+                hiddenCards.forEach(card => card.classList.remove('hidden'));
+                revealButton.style.display = 'none';
+            } else {
+                const error = await response.json();
+                alert(error.error);
+            }
+        });
+    </script>
+</body>
+</html>
